@@ -1,12 +1,12 @@
 {
-  "name": "sass-loader",
-  "version": "11.0.1",
+  "name": "@zougt/sass-loader",
+  "version": "11.1.0",
   "description": "Sass loader for webpack",
   "license": "MIT",
-  "repository": "webpack-contrib/sass-loader",
-  "author": "J. Tangelder",
-  "homepage": "https://github.com/webpack-contrib/sass-loader",
-  "bugs": "https://github.com/webpack-contrib/sass-loader/issues",
+  "repository": "GitOfZGT/sass-loader",
+  "author": "J. Tangelder & zougt",
+  "homepage": "https://github.com/GitOfZGT/sass-loader",
+  "bugs": "https://github.com/GitOfZGT/sass-loader/issues",
   "funding": {
     "type": "opencollective",
     "url": "https://opencollective.com/webpack"

@@ -7,6 +7,9 @@ import {
   getWebpackImporter,
   getRenderFunctionFromSassImplementation,
   normalizeSourceMap,
+  getAllStyleVarFiles,
+  getScropProcessResult,
+  getVarsContent,
 } from "./utils";
 import SassError from "./SassError";
 
@@ -50,38 +53,64 @@ async function loader(content) {
   }
 
   const render = getRenderFunctionFromSassImplementation(implementation);
+  const { data } = sassOptions;
+  const preProcessor = (code) =>
+    new Promise((resolve, reject) => {
+      render({ ...sassOptions, data: code }, (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(result);
+      });
+    });
+  const allStyleVarFiles = getAllStyleVarFiles(this, options);
+  Promise.all(
+    allStyleVarFiles.map((file) => {
+      const varscontent = getVarsContent(file.path);
+      return preProcessor(`${varscontent}\n${data}`);
+    })
+  )
+    .then((prs) => {
+      const result = getScropProcessResult(
+        prs.map((item) => {
+          return {
+            ...item,
+            code: item.css.toString(),
+            deps: item.stats.includedFiles,
+          };
+        }),
+        allStyleVarFiles
+      );
+      const css = result.code;
+      const imports = result.deps;
+      let map = result.map ? JSON.parse(result.map) : null;
 
-  render(sassOptions, (error, result) => {
-    if (error) {
-      // There are situations when the `file` property do not exist
-      if (error.file) {
-        // `node-sass` returns POSIX paths
-        this.addDependency(path.normalize(error.file));
+      // Modify source paths only for webpack, otherwise we do nothing
+      if (map && useSourceMap) {
+        map = normalizeSourceMap(map, this.rootContext);
       }
+      imports.forEach((includedFile) => {
+        const normalizedIncludedFile = path.normalize(includedFile);
 
-      callback(new SassError(error));
+        // Custom `importer` can return only `contents` so includedFile will be relative
+        if (path.isAbsolute(normalizedIncludedFile)) {
+          this.addDependency(normalizedIncludedFile);
+        }
+      });
+      callback(null, css, map);
+    })
+    .catch((error) => {
+      if (error) {
+        // There are situations when the `file` property do not exist
+        if (error.file) {
+          // `node-sass` returns POSIX paths
+          this.addDependency(path.normalize(error.file));
+        }
 
-      return;
-    }
-
-    let map = result.map ? JSON.parse(result.map) : null;
-
-    // Modify source paths only for webpack, otherwise we do nothing
-    if (map && useSourceMap) {
-      map = normalizeSourceMap(map, this.rootContext);
-    }
-
-    result.stats.includedFiles.forEach((includedFile) => {
-      const normalizedIncludedFile = path.normalize(includedFile);
-
-      // Custom `importer` can return only `contents` so includedFile will be relative
-      if (path.isAbsolute(normalizedIncludedFile)) {
-        this.addDependency(normalizedIncludedFile);
+        callback(new SassError(error));
       }
     });
-
-    callback(null, result.css.toString(), map);
-  });
 }
 
 export default loader;

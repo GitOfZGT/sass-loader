@@ -36,6 +36,10 @@
     "webpackImporter": {
       "description": "Enables/Disables default `webpack` importer (https://github.com/webpack-contrib/sass-loader#webpackimporter).",
       "type": "boolean"
+    },
+    "multipleScopeVars": {
+      "description": "The multipleScopeVars of the `sass-loader` to be used (https://github.com/GitOfZGT/Sass-loader).",
+      "type": "array"
     }
   },
   "additionalProperties": false
