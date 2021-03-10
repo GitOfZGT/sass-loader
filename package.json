@@ -101,5 +101,8 @@
     "libsass",
     "webpack",
     "loader"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
 }
