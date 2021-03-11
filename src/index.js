@@ -3,6 +3,12 @@ import path from "path";
 import { validate } from "schema-utils";
 import { getOptions } from "loader-utils";
 
+import {
+  getScropProcessResult,
+  getAllStyleVarFiles,
+  getVarsContent,
+} from "@zougt/some-loader-utils";
+
 import schema from "./options.json";
 import {
   getSassImplementation,
@@ -10,12 +16,8 @@ import {
   getWebpackImporter,
   getRenderFunctionFromSassImplementation,
   normalizeSourceMap,
-  getAllStyleVarFiles,
-  getScropProcessResult,
-  getVarsContent,
 } from "./utils";
 import SassError from "./SassError";
-
 /**
  * The sass-loader makes node-sass and dart-sass available to webpack modules.
  *
