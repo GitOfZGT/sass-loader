@@ -1,5 +1,11 @@
 import path from "path";
 
+import {
+  getScropProcessResult,
+  getAllStyleVarFiles,
+  getVarsContent,
+} from "@zougt/some-loader-utils";
+
 import schema from "./options.json";
 import {
   getSassImplementation,
@@ -7,10 +13,8 @@ import {
   getWebpackImporter,
   getRenderFunctionFromSassImplementation,
   normalizeSourceMap,
-  getAllStyleVarFiles,
-  getScropProcessResult,
-  getVarsContent,
 } from "./utils";
+
 import SassError from "./SassError";
 
 /**

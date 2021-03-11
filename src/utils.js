@@ -1,6 +1,5 @@
 import url from "url";
 import path from "path";
-import fs from "fs";
 
 import { klona } from "klona/full";
 import async from "neo-async";
@@ -561,137 +560,6 @@ function normalizeSourceMap(map, rootContext) {
 
   return newMap;
 }
-const getAllStyleVarFiles = (loaderContext, options) => {
-  const styleVarFiles = options.multipleScopeVars;
-  let allStyleVarFiles = [{ scopeName: "", path: "" }];
-  if (Array.isArray(styleVarFiles)) {
-    allStyleVarFiles = styleVarFiles.filter((item) => {
-      if (!item.scopeName) {
-        loaderContext.emitError(
-          new Error("Not found scopeName in sass-loader multipleScopeVars")
-        );
-        return false;
-      }
-      if (Array.isArray(item.path)) {
-        return item.path.every((pathstr) => {
-          const exists = pathstr && fs.existsSync(pathstr);
-          if (!exists) {
-            loaderContext.emitError(
-              new Error(
-                `Not found path: ${pathstr} in sass-loader multipleScopeVars`
-              )
-            );
-          }
-          return exists;
-        });
-      }
-      if (
-        !item.path ||
-        typeof item.path !== "string" ||
-        !fs.existsSync(item.path)
-      ) {
-        loaderContext.emitError(
-          new Error(
-            `Not found path: ${item.path} in sass-loader multipleScopeVars`
-          )
-        );
-        return false;
-      }
-      return true;
-    });
-  }
-  return allStyleVarFiles;
-};
-
-const cssFragReg = /[^{}/\\]+{[^{}]*?}/g;
-const classNameFragReg = /[^{}/\\]+(?={)/;
-const addScopeName = (css, scopeName) => {
-  const splitCodes = css.match(cssFragReg) || [];
-
-  if (splitCodes.length && scopeName) {
-    const fragments = [];
-    const resultCode = splitCodes.reduce((codes, curr) => {
-      const replacerFragment = curr.replace(classNameFragReg, (a) =>
-        a.split(",").reduce((tol, c) => {
-          if (/^html/i.test(c)) {
-            return tol;
-          }
-          return tol.replace(c, `.${scopeName} ${c}`);
-        }, a)
-      );
-      fragments.push(replacerFragment);
-      return codes.replace(curr, replacerFragment);
-    }, css);
-    return {
-      cssCode: resultCode,
-      sourceFragments: splitCodes,
-      fragments,
-    };
-  }
-
-  return {
-    cssCode: css,
-    sourceFragments: splitCodes,
-    fragments: splitCodes,
-  };
-};
-
-const getScropProcessResult = (cssResults = [], allStyleVarFiles = []) => {
-  const preprocessResult = { deps: [], code: "", errors: [] };
-  const fragmentsGroup = [];
-  const sourceFragmentsGroup = [];
-  cssResults.forEach((item, i) => {
-    const { fragments, sourceFragments } = addScopeName(
-      item.code,
-      allStyleVarFiles[i].scopeName
-    );
-    fragmentsGroup.push(fragments);
-    sourceFragmentsGroup.push(sourceFragments);
-    preprocessResult.errors = [
-      ...(preprocessResult.errors || []),
-      ...(item.errors || []),
-    ];
-    const deps = Array.isArray(allStyleVarFiles[i].path)
-      ? allStyleVarFiles[i].path
-      : [allStyleVarFiles[i].path];
-    deps.forEach((str) => {
-      if (str) {
-        preprocessResult.deps.push(str);
-      }
-    });
-  });
-  if (cssResults.length && sourceFragmentsGroup.length) {
-    preprocessResult.code = sourceFragmentsGroup[0].reduce(
-      (tol, curr, i) =>
-        tol.replace(curr, () => fragmentsGroup.map((g) => g[i]).join("\n")),
-      cssResults[0].code
-    );
-    preprocessResult.map = cssResults[0].map;
-    preprocessResult.deps = [...preprocessResult.deps, ...cssResults[0].deps];
-  }
-
-  return preprocessResult;
-};
-
-const replaceFormLess = (url) => {
-  let code = url ? fs.readFileSync(url).toString() : "";
-  if (/\.less$/i.test(url)) {
-    code = code.replace(/@/g, "$");
-  }
-  return code.replace(/!default/g, "");
-};
-
-const getVarsContent = (url) => {
-  let content = "";
-  if (Array.isArray(url)) {
-    url.forEach((p) => {
-      content += replaceFormLess(p);
-    });
-  } else {
-    content = replaceFormLess(url);
-  }
-  return content;
-};
 export {
   getSassImplementation,
   getSassOptions,
@@ -699,8 +567,4 @@ export {
   getWebpackImporter,
   getRenderFunctionFromSassImplementation,
   normalizeSourceMap,
-  getAllStyleVarFiles,
-  addScopeName,
-  getScropProcessResult,
-  getVarsContent,
 };
