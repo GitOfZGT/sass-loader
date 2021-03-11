@@ -78,7 +78,7 @@ async function loader(content) {
   const allStyleVarFiles = getAllStyleVarFiles(this, options);
   Promise.all(
     allStyleVarFiles.map((file) => {
-      const varscontent = getVarsContent(file.path);
+      const varscontent = getVarsContent(file.path, "sass");
       return preProcessor(`${varscontent}\n${data}`);
     })
   )
