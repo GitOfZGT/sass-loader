@@ -674,7 +674,7 @@ const getScropProcessResult = (cssResults = [], allStyleVarFiles = []) => {
 };
 
 const replaceFormLess = (url) => {
-  let code = fs.readFileSync(url).toString();
+  let code = url ? fs.readFileSync(url).toString() : "";
   if (/\.less$/i.test(url)) {
     code = code.replace(/@/g, "$");
   }
