@@ -75,8 +75,8 @@ async function loader(content) {
       return preProcessor(`${varscontent}\n${data}`);
     })
   )
-    .then((prs) => {
-      const result = getScropProcessResult(
+    .then((prs) =>
+      getScropProcessResult(
         prs.map((item) => {
           return {
             ...item,
@@ -84,8 +84,11 @@ async function loader(content) {
             deps: item.stats.includedFiles,
           };
         }),
-        allStyleVarFiles
-      );
+        allStyleVarFiles,
+        this.resourcePath
+      )
+    )
+    .then((result) => {
       const css = result.code;
       const imports = result.deps;
       let map = result.map ? JSON.parse(result.map) : null;
