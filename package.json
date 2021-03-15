@@ -1,6 +1,6 @@
 {
   "name": "@zougt/sass-loader",
-  "version": "10.2.3",
+  "version": "10.2.4",
   "description": "Sass loader for webpack",
   "license": "MIT",
   "repository": "GitOfZGT/sass-loader",
@@ -56,7 +56,7 @@
     }
   },
   "dependencies": {
-    "@zougt/some-loader-utils": "^1.0.2",
+    "@zougt/some-loader-utils": "^1.0.4",
     "klona": "^2.0.4",
     "loader-utils": "^2.0.0",
     "neo-async": "^2.6.2",
