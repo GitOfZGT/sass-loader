@@ -1,5 +1,7 @@
 # @zougt/sass-loader
 
+**此包停止维护，请使用[@zougt/some-loader-utils](https://github.com/GitOfZGT/some-loader-utils)**
+
 fork 自[webpack-contrib/sass-loader](https://github.com/webpack-contrib/sass-loader)，在`sass-loader`的基础上增加了`multipleScopeVars`属性，用于根据多个 scss 变量文件编译出多种添加了权重类名的样式（不得不修改 sass-loader 的源码达到此目的）
 
 > 没有添加`multipleScopeVars`属性时，`@zougt/sass-loader`跟`sass-loader`是一致的  
